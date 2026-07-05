@@ -1,0 +1,105 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #fff8f0;
+  color: #3d2c1e;
+  font-family: Inter, sans-serif;
+}
+
+.home {
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+
+  justify-content: center;
+  align-items: center;
+
+  gap: 1rem;
+}
+
+.timer-card {
+  background: white;
+
+  padding: 2rem;
+
+  border-radius: 24px;
+
+  width: 350px;
+
+  text-align: center;
+
+  box-shadow: 0 10px 25px rgba(0,0,0,.08);
+}
+
+.timer-card h2 {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  gap: .75rem;
+}
+
+button {
+  border: none;
+
+  padding: .8rem 1.2rem;
+
+  border-radius: 12px;
+
+  cursor: pointer;
+
+  background: #ffb86c;
+}
+
+button:hover {
+  opacity: .9;
+}
+
+.timer-card {
+  background: white;
+
+  padding: 2rem;
+
+  border-radius: 24px;
+
+  width: 350px;
+
+  text-align: center;
+
+  box-shadow: 0 10px 25px rgba(0,0,0,.08);
+}
+
+.timer-card h2 {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  gap: .75rem;
+}
+
+button {
+  border: none;
+
+  padding: .8rem 1.2rem;
+
+  border-radius: 12px;
+
+  cursor: pointer;
+
+  background: #ffb86c;
+}
+
+button:hover {
+  opacity: .9;
+}
