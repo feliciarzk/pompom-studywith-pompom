@@ -1,12 +1,12 @@
-import { Link, useLocation } from "react-router-dom";
-
 import Background from "./Background";
+import Sidebar from "../components/Sidebar";
 import StatsCard from "../components/StatsCard";
 import { getStats } from "../utils/storage";
+import useIsMobile from "../hooks/useIsMobile";
 
 function Stats() {
-  const location = useLocation();
   const stats = getStats();
+  const isMobile = useIsMobile();
 
   const productivity = Math.min(100, Math.round(stats.sessions * 2));
 
@@ -36,76 +36,15 @@ function Stats() {
     { label: "Sunday", value: 60 },
   ];
 
-  const navLinks = [
-    { to: "/", label: "Home" },
-    { to: "/stats", label: "Stats" },
-    { to: "/settings", label: "Settings" },
-  ];
-
   return (
     <>
       <Background />
+      <Sidebar />
 
-      {/* SIDEBAR */}
-      <div
-        style={{
-          position: "fixed",
-          left: "30px",
-          top: "50%",
-          transform: "translateY(-50%)",
-          width: "200px",
-          background: "rgba(255,255,255,.7)",
-          backdropFilter: "blur(20px)",
-          borderRadius: "24px",
-          padding: "1.75rem 1.25rem",
-          boxShadow: "0 10px 40px rgba(0,0,0,.08)",
-          border: "1px solid rgba(255,255,255,.5)",
-        }}
-      >
-        <p
-          style={{
-            color: "#4A2F1D",
-            fontWeight: 600,
-            fontSize: ".75rem",
-            letterSpacing: "2px",
-            textTransform: "uppercase",
-            marginBottom: "1.25rem",
-            opacity: 0.6,
-          }}
-        >
-          PomPom
-        </p>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: ".4rem" }}>
-          {navLinks.map((nav) => {
-            const active = location.pathname === nav.to;
-            return (
-              <Link key={nav.to} to={nav.to} style={{ textDecoration: "none" }}>
-                <div
-                  style={{
-                    padding: ".7rem .9rem",
-                    borderRadius: "12px",
-                    fontSize: ".95rem",
-                    fontWeight: active ? 600 : 500,
-                    color: active ? "#4A2F1D" : "#9A8578",
-                    background: active ? "rgba(255,184,108,.35)" : "transparent",
-                    transition: "all .2s ease",
-                    cursor: "pointer",
-                  }}
-                >
-                  {nav.label}
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* MAIN */}
       <div
         style={{
           minHeight: "100vh",
-          padding: "3rem",
+          padding: isMobile ? "1.5rem 1rem 6rem" : "3rem",
           fontFamily: "Inter, sans-serif",
           display: "flex",
           justifyContent: "center",
@@ -115,11 +54,11 @@ function Stats() {
         <div
           style={{
             width: "950px",
-            maxWidth: "95%",
+            maxWidth: "100%",
             background: "rgba(255,255,255,.82)",
             backdropFilter: "blur(14px)",
-            borderRadius: "35px",
-            padding: "2.5rem",
+            borderRadius: isMobile ? "24px" : "35px",
+            padding: isMobile ? "1.5rem" : "2.5rem",
             boxShadow: "0 15px 40px rgba(0,0,0,.1)",
           }}
         >
@@ -131,7 +70,9 @@ function Stats() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))",
+              gridTemplateColumns: isMobile
+                ? "repeat(2,1fr)"
+                : "repeat(auto-fit,minmax(200px,1fr))",
               gap: "1rem",
             }}
           >

@@ -1,11 +1,13 @@
-import { useEffect, useRef, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 import Background from "./Background";
 import Pompom from "../components/Pompom";
 import Controls from "../components/Controls";
+import Sidebar from "../components/Sidebar";
 
 import { addSession } from "../utils/storage";
+import { useSound } from "../context/SoundContext";
+import useIsMobile from "../hooks/useIsMobile";
 
 const QUOTES = [
   "You can totally do this 🌟",
@@ -15,11 +17,14 @@ const QUOTES = [
   "Deep work, deep rest.",
 ];
 
+const AMBIENCE_TRACKS = [{ id: "rain", label: "Rain" }];
+
 function Home() {
   const FOCUS_TIME = 25 * 60;
   const BREAK_TIME = 5 * 60;
 
-  const location = useLocation();
+  const isMobile = useIsMobile();
+  const { musicOn, activeAmbience, toggleMusic, toggleAmbience } = useSound();
 
   const [mode, setMode] = useState("focus");
   const [timeLeft, setTimeLeft] = useState(FOCUS_TIME);
@@ -27,10 +32,6 @@ function Home() {
   const [quote] = useState(
     QUOTES[Math.floor(Math.random() * QUOTES.length)]
   );
-
-  const [musicOn, setMusicOn] = useState(false);
-  const audioCtxRef = useRef(null);
-  const nodesRef = useRef(null);
 
   useEffect(() => {
     if (!isRunning) return;
@@ -83,129 +84,11 @@ function Home() {
     switchMode(mode === "focus" ? "break" : "focus");
   };
 
-  const toggleMusic = () => {
-    if (!musicOn) {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-
-      const osc1 = ctx.createOscillator();
-      const osc2 = ctx.createOscillator();
-      const gain = ctx.createGain();
-      const filter = ctx.createBiquadFilter();
-
-      osc1.type = "sine";
-      osc1.frequency.value = 110;
-
-      osc2.type = "sine";
-      osc2.frequency.value = 165;
-
-      filter.type = "lowpass";
-      filter.frequency.value = 400;
-
-      gain.gain.value = 0;
-
-      osc1.connect(filter);
-      osc2.connect(filter);
-      filter.connect(gain);
-      gain.connect(ctx.destination);
-
-      osc1.start();
-      osc2.start();
-
-      gain.gain.linearRampToValueAtTime(0.06, ctx.currentTime + 1.5);
-
-      audioCtxRef.current = ctx;
-      nodesRef.current = { osc1, osc2, gain };
-      setMusicOn(true);
-    } else {
-      const ctx = audioCtxRef.current;
-      const { osc1, osc2, gain } = nodesRef.current;
-
-      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 1);
-
-      setTimeout(() => {
-        osc1.stop();
-        osc2.stop();
-        ctx.close();
-      }, 1100);
-
-      setMusicOn(false);
-    }
-  };
-
-  useEffect(() => {
-    return () => {
-      if (audioCtxRef.current) {
-        audioCtxRef.current.close();
-      }
-    };
-  }, []);
-
-  const navLinks = [
-    { to: "/", label: "Home" },
-    { to: "/stats", label: "Stats" },
-    { to: "/settings", label: "Settings" },
-  ];
-
   return (
     <>
       <Background />
+      <Sidebar />
 
-      {/* SIDEBAR */}
-      <div
-        style={{
-          position: "fixed",
-          left: "30px",
-          top: "50%",
-          transform: "translateY(-50%)",
-          width: "200px",
-          background: "rgba(255,255,255,.7)",
-          backdropFilter: "blur(20px)",
-          borderRadius: "24px",
-          padding: "1.75rem 1.25rem",
-          boxShadow: "0 10px 40px rgba(0,0,0,.08)",
-          border: "1px solid rgba(255,255,255,.5)",
-        }}
-      >
-        <p
-          style={{
-            color: "#4A2F1D",
-            fontWeight: 600,
-            fontSize: ".75rem",
-            letterSpacing: "2px",
-            textTransform: "uppercase",
-            marginBottom: "1.25rem",
-            opacity: 0.6,
-          }}
-        >
-          PomPom
-        </p>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: ".4rem" }}>
-          {navLinks.map((nav) => {
-            const active = location.pathname === nav.to;
-            return (
-              <Link key={nav.to} to={nav.to} style={{ textDecoration: "none" }}>
-                <div
-                  style={{
-                    padding: ".7rem .9rem",
-                    borderRadius: "12px",
-                    fontSize: ".95rem",
-                    fontWeight: active ? 600 : 500,
-                    color: active ? "#4A2F1D" : "#9A8578",
-                    background: active ? "rgba(255,184,108,.35)" : "transparent",
-                    transition: "all .2s ease",
-                    cursor: "pointer",
-                  }}
-                >
-                  {nav.label}
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* MAIN */}
       <div
         style={{
           minHeight: "100vh",
@@ -214,18 +97,18 @@ function Home() {
           justifyContent: "center",
           alignItems: "center",
           fontFamily: "Inter, sans-serif",
+          padding: isMobile ? "1.25rem 1rem 6rem" : "2rem",
         }}
       >
-        {/* TIMER CARD */}
         <div
           style={{
             width: "600px",
-            maxWidth: "90%",
+            maxWidth: "100%",
             background: "rgba(255,255,255,.8)",
             backdropFilter: "blur(16px)",
             border: "1px solid rgba(255,255,255,.4)",
-            borderRadius: "40px",
-            padding: "2.25rem 2rem",
+            borderRadius: isMobile ? "28px" : "40px",
+            padding: isMobile ? "1.5rem 1.25rem" : "2.25rem 2rem",
             textAlign: "center",
             boxShadow: "0 15px 40px rgba(0,0,0,.12)",
           }}
@@ -234,7 +117,7 @@ function Home() {
             style={{
               color: "#8B5E3C",
               fontStyle: "italic",
-              fontSize: "1rem",
+              fontSize: isMobile ? ".9rem" : "1rem",
               marginBottom: "1.5rem",
             }}
           >
@@ -270,7 +153,13 @@ function Home() {
             </button>
           </div>
 
-          <h2 style={{ fontSize: "5rem", color: "#4A2F1D", margin: ".5rem 0" }}>
+          <h2
+            style={{
+              fontSize: isMobile ? "3.2rem" : "5rem",
+              color: "#4A2F1D",
+              margin: ".5rem 0",
+            }}
+          >
             {formatTime(timeLeft)}
           </h2>
 
@@ -285,26 +174,63 @@ function Home() {
             onSkip={handleSkip}
           />
 
-          <button
-            onClick={toggleMusic}
-            style={{
-              marginTop: "1.5rem",
-              border: "none",
-              background: musicOn ? "#FFB86C" : "#F6EFE8",
-              color: "#4A2F1D",
-              padding: ".7rem 1.4rem",
-              borderRadius: "999px",
-              cursor: "pointer",
-              fontSize: ".9rem",
-              fontWeight: 500,
-            }}
-          >
-            {musicOn ? "Music On — Tap to Stop" : "Play Relaxing Sound"}
-          </button>
+          <div style={{ marginTop: "1.5rem" }}>
+            <p style={soundLabel}>Music</p>
+
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                gap: ".6rem",
+                marginBottom: "1rem",
+              }}
+            >
+              <button
+                onClick={toggleMusic}
+                style={{
+                  ...soundBtn,
+                  background: musicOn ? "#FFB86C" : "#F6EFE8",
+                }}
+              >
+                {musicOn ? "⏸ Piano" : "▶ Piano"}
+              </button>
+            </div>
+
+            <p style={soundLabel}>Background Ambience</p>
+
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                gap: ".6rem",
+                flexWrap: "wrap",
+              }}
+            >
+              {AMBIENCE_TRACKS.map((track) => (
+                <button
+                  key={track.id}
+                  onClick={() => toggleAmbience(track.id)}
+                  style={{
+                    ...soundBtn,
+                    background:
+                      activeAmbience === track.id ? "#FFB86C" : "#F6EFE8",
+                  }}
+                >
+                  {activeAmbience === track.id
+                    ? `⏸ ${track.label}`
+                    : `▶ ${track.label}`}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
-        {/* POMPOM */}
-        <div style={{ marginTop: "1rem", transform: "scale(.75)" }}>
+        <div
+          style={{
+            marginTop: "1rem",
+            transform: isMobile ? "scale(.6)" : "scale(.75)",
+          }}
+        >
           <Pompom />
         </div>
       </div>
@@ -317,6 +243,24 @@ const modeBtn = {
   padding: ".8rem 1.2rem",
   borderRadius: "999px",
   cursor: "pointer",
+};
+
+const soundLabel = {
+  fontSize: ".75rem",
+  letterSpacing: "1px",
+  textTransform: "uppercase",
+  color: "#B79A82",
+  marginBottom: ".5rem",
+};
+
+const soundBtn = {
+  border: "none",
+  color: "#4A2F1D",
+  padding: ".6rem 1.1rem",
+  borderRadius: "999px",
+  cursor: "pointer",
+  fontSize: ".85rem",
+  fontWeight: 500,
 };
 
 export default Home;
